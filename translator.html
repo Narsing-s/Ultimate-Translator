@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Global Translator Pro</title>
+<title>Ultimate Translator Pro</title>
 
 <style>
 body {
@@ -13,7 +13,7 @@ body {
   overflow:hidden;
 }
 
-/* floating bubbles */
+/* bubbles */
 .bubble{
   position:absolute;
   width:20px;height:20px;
@@ -48,6 +48,16 @@ body {
   to{transform:scale(1);opacity:1;}
 }
 
+/* forgot popup */
+.forgot-modal{
+  position:fixed;
+  width:100%;height:100%;
+  display:none;
+  justify-content:center;
+  align-items:center;
+  background:rgba(0,0,0,0.5);
+}
+
 input{
   width:90%;
   padding:10px;
@@ -66,6 +76,10 @@ button{
 }
 button:hover{background:#556cd6;}
 
+.small-btn { background:#34d399; }
+.swap-btn { background:#ff9800; }
+
+/* app */
 .container{
   display:none;
   max-width:900px;
@@ -111,7 +125,6 @@ textarea{
 <body>
 
 <script>
-// bubbles
 for(let i=0;i<25;i++){
   let b=document.createElement("div");
   b.className="bubble";
@@ -131,6 +144,20 @@ for(let i=0;i<25;i++){
     <input type="checkbox" onclick="togglePass()"> Show Password
     <br><br>
     <button onclick="login()">Login / Register</button>
+    <br><br>
+    <button onclick="openForgot()">Forgot Password</button>
+  </div>
+</div>
+
+<!-- FORGOT PASSWORD POPUP -->
+<div class="forgot-modal" id="forgotModal">
+  <div class="login-box">
+    <h3>Reset Password</h3>
+    <input id="fpUser" placeholder="Enter Username">
+    <input id="fpNewPass" type="password" placeholder="New Password">
+    <button onclick="resetPassword()">Update Password</button>
+    <br><br>
+    <button onclick="closeForgot()">Back</button>
   </div>
 </div>
 
@@ -138,47 +165,49 @@ for(let i=0;i<25;i++){
 <div class="container" id="app">
 <h2>🌍 Welcome <span id="userDisplay"></span></h2>
 
-<textarea id="sourceText" placeholder="Type here..."></textarea>
+<textarea id="sourceText" placeholder="Type or speak..."></textarea>
 
 <div class="controls">
   <select id="targetLang"></select>
+  <button class="swap-btn" onclick="swapLang()">🔁</button>
+</div>
+
+<div class="controls">
   <button onclick="translateText()">Translate</button>
-  <button onclick="rewriteText()">AI Fix</button>
+  <button onclick="rewriteText()">🧠 AI Fix</button>
+  <button onclick="startVoice()">🎤 Speak</button>
+  <button class="small-btn" onclick="speakText()">🔊 Listen</button>
+  <button class="small-btn" onclick="copyText()">📋 Copy</button>
   <button onclick="logout()">Logout</button>
 </div>
 
 <textarea id="translatedText" readonly></textarea>
 
 <div class="controls">
-  <button onclick="clearHistory()">Clear History</button>
+  <button onclick="clearHistory()">🗑 Clear History</button>
 </div>
 
 <div class="history" id="history"></div>
 </div>
 
 <script>
-// 🌍 50+ LANGUAGES
+// 🌍 languages
 const languages = {
   en:"English", hi:"Hindi", te:"Telugu", ta:"Tamil", bn:"Bengali",
   kn:"Kannada", ml:"Malayalam", mr:"Marathi", gu:"Gujarati",
   pa:"Punjabi", ur:"Urdu", ar:"Arabic", zh:"Chinese", ja:"Japanese",
   ko:"Korean", fr:"French", de:"German", es:"Spanish",
-  it:"Italian", ru:"Russian", pt:"Portuguese", tr:"Turkish",
-  nl:"Dutch", pl:"Polish", sv:"Swedish", fi:"Finnish",
-  da:"Danish", no:"Norwegian", el:"Greek", he:"Hebrew",
-  th:"Thai", vi:"Vietnamese", id:"Indonesian", ms:"Malay",
-  ro:"Romanian", hu:"Hungarian", cs:"Czech", sk:"Slovak",
-  uk:"Ukrainian", bg:"Bulgarian", sr:"Serbian", hr:"Croatian",
-  sl:"Slovenian", et:"Estonian", lv:"Latvian", lt:"Lithuanian"
+  it:"Italian", ru:"Russian", pt:"Portuguese", tr:"Turkish"
 };
 
 for(let code in languages){
   targetLang.innerHTML += `<option value="${code}">${languages[code]}</option>`;
 }
 
-// 👥 USERS
+// 👥 users
 let users = JSON.parse(localStorage.getItem("users")||"{}");
 
+// LOGIN
 function login(){
   let u=username.value.trim();
   let p=password.value.trim();
@@ -187,12 +216,10 @@ function login(){
 
   if(users[u]){
     if(users[u].password!==p){
-      let reset=confirm("Wrong password. Reset?");
-      if(reset){
-        users[u].password=p;
-      }else return;
+      alert("Wrong password. Use Forgot Password.");
+      return;
     }
-  }else{
+  } else {
     users[u]={password:p,history:[]};
   }
 
@@ -205,6 +232,7 @@ function togglePass(){
   password.type = password.type==="password"?"text":"password";
 }
 
+// START
 function startApp(){
   let u=sessionStorage.getItem("currentUser");
   if(!u) return;
@@ -216,14 +244,17 @@ function startApp(){
   renderHistory();
 }
 
+// ✅ FIXED LOGOUT
 function logout(){
   sessionStorage.removeItem("currentUser");
-  location.reload();
+  app.style.display="none";
+  loginModal.style.display="flex";
 }
 
-// 🌐 TRANSLATE
+// 🌐 translate
 async function translateText(){
-  let text=sourceText.value;
+  let text=sourceText.value.trim();
+  if(!text) return;
 
   const url=`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang.value}&dt=t&q=${encodeURIComponent(text)}`;
 
@@ -237,7 +268,7 @@ async function translateText(){
   saveHistory(text,translated);
 }
 
-// 🧠 AI FIX
+// 🧠 AI fix
 function rewriteText(){
   let text=sourceText.value.trim();
   if(!text) return;
@@ -249,9 +280,38 @@ function rewriteText(){
   saveHistory("AI Fix",text);
 }
 
-// 📜 HISTORY
+// 🎤 voice
+function startVoice(){
+  const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  recognition.lang = "en-US";
+
+  recognition.onresult = e=>{
+    sourceText.value = e.results[0][0].transcript;
+  };
+
+  recognition.start();
+}
+
+// 🔊 speak
+function speakText(){
+  const text = translatedText.value;
+  if(!text) return;
+  speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+}
+
+// 📋 copy
+function copyText(){
+  navigator.clipboard.writeText(translatedText.value);
+  alert("Copied!");
+}
+
+// 📜 history FIXED
 function saveHistory(src,trans){
   let u=sessionStorage.getItem("currentUser");
+  if(!u || !users[u]) return;
+
+  if(!users[u].history) users[u].history=[];
+
   users[u].history.unshift({src,trans});
   localStorage.setItem("users",JSON.stringify(users));
   renderHistory();
@@ -259,7 +319,9 @@ function saveHistory(src,trans){
 
 function renderHistory(){
   let u=sessionStorage.getItem("currentUser");
-  let list=users[u]?.history||[];
+  if(!u || !users[u]) return;
+
+  let list=users[u].history||[];
 
   history.innerHTML="";
   list.slice(0,10).forEach(h=>{
@@ -269,11 +331,43 @@ function renderHistory(){
 
 function clearHistory(){
   let u=sessionStorage.getItem("currentUser");
+  if(!u || !users[u]) return;
+
   users[u].history=[];
   localStorage.setItem("users",JSON.stringify(users));
   renderHistory();
 }
 
+// 🔑 FORGOT PASSWORD UI
+function openForgot(){
+  loginModal.style.display="none";
+  forgotModal.style.display="flex";
+}
+
+function closeForgot(){
+  forgotModal.style.display="none";
+  loginModal.style.display="flex";
+}
+
+function resetPassword(){
+  let u = fpUser.value.trim();
+  let p = fpNewPass.value.trim();
+
+  if(!u || !p) return alert("Enter details");
+
+  if(!users[u]){
+    alert("User not found");
+    return;
+  }
+
+  users[u].password = p;
+  localStorage.setItem("users",JSON.stringify(users));
+
+  alert("Password updated!");
+  closeForgot();
+}
+
+// start
 startApp();
 </script>
 
