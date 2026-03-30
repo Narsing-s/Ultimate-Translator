@@ -1,1 +1,1 @@
-# -Ultimate-Translator
+# Ultimate-Translator
