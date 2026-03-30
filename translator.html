@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -12,8 +13,6 @@ body {
   background:linear-gradient(135deg,#667eea,#764ba2);
   overflow:hidden;
 }
-
-/* bubbles */
 .bubble{
   position:absolute;
   width:20px;height:20px;
@@ -25,8 +24,6 @@ body {
   from{transform:translateY(100vh);}
   to{transform:translateY(-10vh);}
 }
-
-/* login */
 .login-modal{
   position:fixed;
   width:100%;height:100%;
@@ -47,8 +44,6 @@ body {
   from{transform:scale(.7);opacity:0;}
   to{transform:scale(1);opacity:1;}
 }
-
-/* forgot popup */
 .forgot-modal{
   position:fixed;
   width:100%;height:100%;
@@ -57,7 +52,6 @@ body {
   align-items:center;
   background:rgba(0,0,0,0.5);
 }
-
 input{
   width:90%;
   padding:10px;
@@ -65,7 +59,6 @@ input{
   border-radius:8px;
   border:1px solid #ccc;
 }
-
 button{
   padding:10px;
   border:none;
@@ -75,11 +68,9 @@ button{
   cursor:pointer;
 }
 button:hover{background:#556cd6;}
-
 .small-btn { background:#34d399; }
 .swap-btn { background:#ff9800; }
 
-/* app */
 .container{
   display:none;
   max-width:900px;
@@ -94,7 +85,6 @@ button:hover{background:#556cd6;}
   from{opacity:0;transform:translateY(20px);}
   to{opacity:1;transform:translateY(0);}
 }
-
 textarea{
   width:100%;
   height:100px;
@@ -103,14 +93,12 @@ textarea{
   border-radius:10px;
   border:1px solid #ccc;
 }
-
 .controls{
   display:flex;
   flex-wrap:wrap;
   gap:10px;
   margin-top:10px;
 }
-
 .history{
   margin-top:10px;
   max-height:150px;
@@ -120,6 +108,7 @@ textarea{
   border-radius:10px;
 }
 </style>
+
 </head>
 
 <body>
@@ -134,7 +123,6 @@ for(let i=0;i<25;i++){
 }
 </script>
 
-<!-- LOGIN -->
 <div class="login-modal" id="loginModal">
   <div class="login-box">
     <h2>🔐 Login</h2>
@@ -149,7 +137,6 @@ for(let i=0;i<25;i++){
   </div>
 </div>
 
-<!-- FORGOT PASSWORD POPUP -->
 <div class="forgot-modal" id="forgotModal">
   <div class="login-box">
     <h3>Reset Password</h3>
@@ -161,7 +148,6 @@ for(let i=0;i<25;i++){
   </div>
 </div>
 
-<!-- APP -->
 <div class="container" id="app">
 <h2>🌍 Welcome <span id="userDisplay"></span></h2>
 
@@ -169,7 +155,7 @@ for(let i=0;i<25;i++){
 
 <div class="controls">
   <select id="targetLang"></select>
-  <button class="swap-btn" onclick="swapLang()">🔁</button>
+  <button class="swap-btn">🔁</button>
 </div>
 
 <div class="controls">
@@ -178,20 +164,19 @@ for(let i=0;i<25;i++){
   <button onclick="startVoice()">🎤 Speak</button>
   <button class="small-btn" onclick="speakText()">🔊 Listen</button>
   <button class="small-btn" onclick="copyText()">📋 Copy</button>
+  <button onclick="downloadExcel()">📊 Excel</button>
+  <button onclick="downloadText()">📄 Text</button>
   <button onclick="logout()">Logout</button>
 </div>
 
 <textarea id="translatedText" readonly></textarea>
 
-<div class="controls">
-  <button onclick="clearHistory()">🗑 Clear History</button>
-</div>
-
 <div class="history" id="history"></div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
 <script>
-// 🌍 languages
 const languages = {
   en:"English", hi:"Hindi", te:"Telugu", ta:"Tamil", bn:"Bengali",
   kn:"Kannada", ml:"Malayalam", mr:"Marathi", gu:"Gujarati",
@@ -204,10 +189,9 @@ for(let code in languages){
   targetLang.innerHTML += `<option value="${code}">${languages[code]}</option>`;
 }
 
-// 👥 users
 let users = JSON.parse(localStorage.getItem("users")||"{}");
 
-// LOGIN
+// ✅ STRICT LOGIN FIX
 function login(){
   let u=username.value.trim();
   let p=password.value.trim();
@@ -215,24 +199,24 @@ function login(){
   if(!u||!p) return alert("Enter details");
 
   if(users[u]){
-    if(users[u].password!==p){
-      alert("Wrong password. Use Forgot Password.");
-      return;
+    if(users[u].password === p){
+      sessionStorage.setItem("currentUser",u);
+      startApp();
+    } else {
+      alert("❌ Wrong username or password");
     }
   } else {
     users[u]={password:p,history:[]};
+    localStorage.setItem("users",JSON.stringify(users));
+    sessionStorage.setItem("currentUser",u);
+    startApp();
   }
-
-  localStorage.setItem("users",JSON.stringify(users));
-  sessionStorage.setItem("currentUser",u);
-  startApp();
 }
 
 function togglePass(){
   password.type = password.type==="password"?"text":"password";
 }
 
-// START
 function startApp(){
   let u=sessionStorage.getItem("currentUser");
   if(!u) return;
@@ -244,14 +228,13 @@ function startApp(){
   renderHistory();
 }
 
-// ✅ FIXED LOGOUT
 function logout(){
   sessionStorage.removeItem("currentUser");
   app.style.display="none";
   loginModal.style.display="flex";
 }
 
-// 🌐 translate
+// translate
 async function translateText(){
   let text=sourceText.value.trim();
   if(!text) return;
@@ -268,106 +251,99 @@ async function translateText(){
   saveHistory(text,translated);
 }
 
-// 🧠 AI fix
-function rewriteText(){
-  let text=sourceText.value.trim();
+// 🔊 FULL LANGUAGE SUPPORT FIX
+function speakText(){
+  let text = translatedText.value;
   if(!text) return;
 
-  text=text.charAt(0).toUpperCase()+text.slice(1);
-  if(!text.endsWith(".")) text+=".";
+  let utter = new SpeechSynthesisUtterance(text);
 
-  translatedText.value=text;
-  saveHistory("AI Fix",text);
+  let voices = speechSynthesis.getVoices();
+
+  let langMap = {
+    en:"en-US", hi:"hi-IN", te:"te-IN", ta:"ta-IN", bn:"bn-IN",
+    kn:"kn-IN", ml:"ml-IN", mr:"mr-IN", gu:"gu-IN",
+    pa:"pa-IN", ur:"ur-PK", ar:"ar-SA", zh:"zh-CN",
+    ja:"ja-JP", ko:"ko-KR", fr:"fr-FR", de:"de-DE",
+    es:"es-ES", it:"it-IT", ru:"ru-RU", pt:"pt-PT", tr:"tr-TR"
+  };
+
+  utter.lang = langMap[targetLang.value] || "en-US";
+
+  let voice = voices.find(v => v.lang === utter.lang);
+  if(voice) utter.voice = voice;
+
+  speechSynthesis.cancel();
+  speechSynthesis.speak(utter);
 }
 
-// 🎤 voice
+// ensure voices load
+speechSynthesis.onvoiceschanged = () => { speechSynthesis.getVoices(); };
+
+// rest unchanged
 function startVoice(){
   const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
   recognition.lang = "en-US";
-
-  recognition.onresult = e=>{
-    sourceText.value = e.results[0][0].transcript;
-  };
-
+  recognition.onresult = e=>{ sourceText.value = e.results[0][0].transcript; };
   recognition.start();
 }
 
-// 🔊 speak
-function speakText(){
-  const text = translatedText.value;
-  if(!text) return;
-  speechSynthesis.speak(new SpeechSynthesisUtterance(text));
-}
-
-// 📋 copy
 function copyText(){
   navigator.clipboard.writeText(translatedText.value);
   alert("Copied!");
 }
 
-// 📜 history FIXED
 function saveHistory(src,trans){
   let u=sessionStorage.getItem("currentUser");
-  if(!u || !users[u]) return;
-
-  if(!users[u].history) users[u].history=[];
-
-  users[u].history.unshift({src,trans});
-  localStorage.setItem("users",JSON.stringify(users));
+  let freshUsers = JSON.parse(localStorage.getItem("users")||"{}");
+  if(!freshUsers[u]) freshUsers[u]={password:"",history:[]};
+  freshUsers[u].history.unshift({src,trans});
+  localStorage.setItem("users",JSON.stringify(freshUsers));
+  users=freshUsers;
   renderHistory();
 }
 
 function renderHistory(){
   let u=sessionStorage.getItem("currentUser");
-  if(!u || !users[u]) return;
-
-  let list=users[u].history||[];
-
+  let freshUsers = JSON.parse(localStorage.getItem("users")||"{}");
+  let list=freshUsers[u]?.history||[];
   history.innerHTML="";
   list.slice(0,10).forEach(h=>{
     history.innerHTML+=`<p>${h.src} → ${h.trans}</p>`;
   });
 }
 
-function clearHistory(){
-  let u=sessionStorage.getItem("currentUser");
-  if(!u || !users[u]) return;
-
-  users[u].history=[];
-  localStorage.setItem("users",JSON.stringify(users));
-  renderHistory();
-}
-
-// 🔑 FORGOT PASSWORD UI
-function openForgot(){
-  loginModal.style.display="none";
-  forgotModal.style.display="flex";
-}
-
-function closeForgot(){
-  forgotModal.style.display="none";
-  loginModal.style.display="flex";
-}
+function openForgot(){ loginModal.style.display="none"; forgotModal.style.display="flex"; }
+function closeForgot(){ forgotModal.style.display="none"; loginModal.style.display="flex"; }
 
 function resetPassword(){
   let u = fpUser.value.trim();
   let p = fpNewPass.value.trim();
-
   if(!u || !p) return alert("Enter details");
-
-  if(!users[u]){
-    alert("User not found");
-    return;
-  }
-
+  if(!users[u]) return alert("User not found");
   users[u].password = p;
   localStorage.setItem("users",JSON.stringify(users));
-
   alert("Password updated!");
   closeForgot();
 }
 
-// start
+// downloads
+function downloadExcel(){
+  let data=[{Source:sourceText.value,Translation:translatedText.value}];
+  let ws=XLSX.utils.json_to_sheet(data);
+  let wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,"Translation");
+  XLSX.writeFile(wb,"translation.xlsx");
+}
+
+function downloadText(){
+  let blob=new Blob([`Source:\n${sourceText.value}\n\nTranslation:\n${translatedText.value}`],{type:"text/plain"});
+  let a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="translation.txt";
+  a.click();
+}
+
 startApp();
 </script>
 
