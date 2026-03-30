@@ -1,118 +1,150 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ultimate Translator Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
 <style>
+/* GENERAL */
 body {
-  font-family:'Segoe UI';
+  font-family: 'Roboto', sans-serif;
   margin:0;
   background:linear-gradient(135deg,#667eea,#764ba2);
-  overflow:hidden;
+  overflow-x:hidden;
+  color:#333;
 }
+
+/* bubbles */
 .bubble{
   position:absolute;
-  width:20px;height:20px;
-  background:rgba(255,255,255,0.2);
+  width:15px;height:15px;
+  background:rgba(255,255,255,0.15);
   border-radius:50%;
-  animation:float 10s infinite;
+  animation:float 10s infinite linear;
 }
 @keyframes float{
   from{transform:translateY(100vh);}
   to{transform:translateY(-10vh);}
 }
-.login-modal{
+
+/* MODALS */
+.modal{
   position:fixed;
-  width:100%;height:100%;
+  top:0; left:0;
+  width:100%; height:100%;
   display:flex;
   justify-content:center;
   align-items:center;
-  background:rgba(0,0,0,0.5);
+  background:rgba(0,0,0,0.6);
+  z-index:1000;
 }
-.login-box{
+
+.modal-content{
   background:#fff;
-  padding:25px;
+  padding:30px 25px;
   border-radius:15px;
-  width:300px;
+  width:320px;
   text-align:center;
-  animation:pop .4s ease;
+  box-shadow:0 15px 40px rgba(0,0,0,0.3);
+  animation:pop 0.4s ease;
 }
 @keyframes pop{
   from{transform:scale(.7);opacity:0;}
   to{transform:scale(1);opacity:1;}
 }
-.forgot-modal{
-  position:fixed;
-  width:100%;height:100%;
-  display:none;
-  justify-content:center;
-  align-items:center;
-  background:rgba(0,0,0,0.5);
+
+.modal-content h2,h3{
+  margin-bottom:15px;
 }
-input{
-  width:90%;
+
+/* INPUTS */
+input, select, textarea{
+  width:95%;
   padding:10px;
   margin:8px 0;
   border-radius:8px;
   border:1px solid #ccc;
+  font-size:15px;
 }
+
+textarea{
+  resize:none;
+}
+
+/* BUTTONS */
 button{
-  padding:10px;
+  padding:10px 15px;
+  margin:5px 2px;
   border:none;
   border-radius:8px;
-  background:#667eea;
-  color:#fff;
   cursor:pointer;
+  font-weight:500;
+  transition:0.2s;
 }
-button:hover{background:#556cd6;}
-.small-btn { background:#34d399; }
-.swap-btn { background:#ff9800; }
+button:hover{opacity:0.85;}
+.primary-btn{background:#667eea;color:#fff;}
+.primary-btn:hover{background:#556cd6;}
+.green-btn{background:#34d399;color:#fff;}
+.orange-btn{background:#ff9800;color:#fff;}
+.blue-btn{background:#3b82f6;color:#fff;}
 
+/* CONTAINER */
 .container{
   display:none;
-  max-width:900px;
-  margin:30px auto;
+  max-width:950px;
+  margin:40px auto;
   background:#fff;
-  padding:25px;
+  padding:25px 30px;
   border-radius:15px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.2);
+  box-shadow:0 10px 35px rgba(0,0,0,0.2);
   animation:fade .5s ease;
 }
 @keyframes fade{
   from{opacity:0;transform:translateY(20px);}
   to{opacity:1;transform:translateY(0);}
 }
-textarea{
-  width:100%;
-  height:100px;
-  margin-top:10px;
-  padding:10px;
-  border-radius:10px;
-  border:1px solid #ccc;
-}
+
+/* CONTROLS */
 .controls{
   display:flex;
   flex-wrap:wrap;
   gap:10px;
   margin-top:10px;
 }
+
+/* HISTORY */
 .history{
-  margin-top:10px;
-  max-height:150px;
+  margin-top:15px;
+  max-height:160px;
   overflow:auto;
-  background:#f9f9f9;
+  background:#f4f4f4;
   padding:10px;
   border-radius:10px;
+  font-size:14px;
+}
+
+/* DOWNLOAD BUTTONS */
+.download-btns{
+  margin-top:10px;
+  display:flex;
+  gap:10px;
+}
+
+/* HEADER */
+h2 span{color:#667eea;}
+
+/* SWAP BUTTON */
+.swap-btn{
+  padding:0 10px;
+  font-size:18px;
+  border-radius:50%;
 }
 </style>
-
 </head>
 
 <body>
-
 <script>
 for(let i=0;i<25;i++){
   let b=document.createElement("div");
@@ -123,31 +155,35 @@ for(let i=0;i<25;i++){
 }
 </script>
 
-<div class="login-modal" id="loginModal">
-  <div class="login-box">
+<!-- LOGIN MODAL -->
+<div class="modal" id="loginModal">
+  <div class="modal-content">
     <h2>🔐 Login</h2>
     <input id="username" placeholder="Username">
     <input id="password" type="password" placeholder="Password">
     <br>
     <input type="checkbox" onclick="togglePass()"> Show Password
     <br><br>
-    <button onclick="login()">Login / Register</button>
+    <button class="primary-btn" onclick="login()">Login / Register</button>
     <br><br>
-    <button onclick="openForgot()">Forgot Password</button>
+    <button class="blue-btn" onclick="openForgot()">Forgot Password</button>
   </div>
 </div>
 
-<div class="forgot-modal" id="forgotModal">
-  <div class="login-box">
+<!-- FORGOT PASSWORD MODAL -->
+<div class="modal" id="forgotModal" style="display:none;">
+  <div class="modal-content">
     <h3>Reset Password</h3>
     <input id="fpUser" placeholder="Enter Username">
     <input id="fpNewPass" type="password" placeholder="New Password">
-    <button onclick="resetPassword()">Update Password</button>
+    <br>
+    <button class="primary-btn" onclick="resetPassword()">Update Password</button>
     <br><br>
-    <button onclick="closeForgot()">Back</button>
+    <button class="blue-btn" onclick="closeForgot()">Back</button>
   </div>
 </div>
 
+<!-- MAIN APP -->
 <div class="container" id="app">
 <h2>🌍 Welcome <span id="userDisplay"></span></h2>
 
@@ -155,28 +191,30 @@ for(let i=0;i<25;i++){
 
 <div class="controls">
   <select id="targetLang"></select>
-  <button class="swap-btn">🔁</button>
+  <button class="swap-btn orange-btn" onclick="swapLang()">🔁</button>
 </div>
 
 <div class="controls">
-  <button onclick="translateText()">Translate</button>
-  <button onclick="rewriteText()">🧠 AI Fix</button>
-  <button onclick="startVoice()">🎤 Speak</button>
-  <button class="small-btn" onclick="speakText()">🔊 Listen</button>
-  <button class="small-btn" onclick="copyText()">📋 Copy</button>
-  <button onclick="downloadExcel()">📊 Excel</button>
-  <button onclick="downloadText()">📄 Text</button>
-  <button onclick="logout()">Logout</button>
+  <button class="primary-btn" onclick="translateText()">Translate</button>
+  <button class="green-btn" onclick="rewriteText()">🧠 AI Fix</button>
+  <button class="orange-btn" onclick="startVoice()">🎤 Speak</button>
+  <button class="green-btn" onclick="speakText()">🔊 Listen</button>
+  <button class="primary-btn" onclick="copyText()">📋 Copy</button>
+  <button class="blue-btn" onclick="logout()">Logout</button>
 </div>
 
 <textarea id="translatedText" readonly></textarea>
 
+<div class="download-btns">
+  <button class="blue-btn" onclick="downloadText()">Download TXT</button>
+  <button class="green-btn" onclick="downloadExcel()">Download Excel</button>
+</div>
+
 <div class="history" id="history"></div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-
 <script>
+// LANGUAGES
 const languages = {
   en:"English", hi:"Hindi", te:"Telugu", ta:"Tamil", bn:"Bengali",
   kn:"Kannada", ml:"Malayalam", mr:"Marathi", gu:"Gujarati",
@@ -184,103 +222,87 @@ const languages = {
   ko:"Korean", fr:"French", de:"German", es:"Spanish",
   it:"Italian", ru:"Russian", pt:"Portuguese", tr:"Turkish"
 };
-
+const targetLang = document.getElementById('targetLang');
 for(let code in languages){
   targetLang.innerHTML += `<option value="${code}">${languages[code]}</option>`;
 }
 
+// USERS
 let users = JSON.parse(localStorage.getItem("users")||"{}");
 
-// ✅ STRICT LOGIN FIX
+// LOGIN
 function login(){
   let u=username.value.trim();
   let p=password.value.trim();
-
   if(!u||!p) return alert("Enter details");
 
   if(users[u]){
-    if(users[u].password === p){
-      sessionStorage.setItem("currentUser",u);
-      startApp();
-    } else {
-      alert("❌ Wrong username or password");
+    if(users[u].password!==p){
+      alert("❌ Wrong username or password!");
+      return;
     }
   } else {
     users[u]={password:p,history:[]};
-    localStorage.setItem("users",JSON.stringify(users));
-    sessionStorage.setItem("currentUser",u);
-    startApp();
   }
+
+  localStorage.setItem("users",JSON.stringify(users));
+  sessionStorage.setItem("currentUser",u);
+  startApp();
 }
 
 function togglePass(){
   password.type = password.type==="password"?"text":"password";
 }
 
+// START APP
 function startApp(){
   let u=sessionStorage.getItem("currentUser");
   if(!u) return;
 
   loginModal.style.display="none";
+  forgotModal.style.display="none";
   app.style.display="block";
   userDisplay.innerText=u;
 
   renderHistory();
 }
 
+// LOGOUT
 function logout(){
   sessionStorage.removeItem("currentUser");
   app.style.display="none";
   loginModal.style.display="flex";
 }
 
-// translate
+// TRANSLATE
 async function translateText(){
   let text=sourceText.value.trim();
   if(!text) return;
 
   const url=`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang.value}&dt=t&q=${encodeURIComponent(text)}`;
-
-  let res=await fetch(url);
-  let data=await res.json();
-
-  let translated="";
-  data[0].forEach(i=>translated+=i[0]);
-
-  translatedText.value=translated;
-  saveHistory(text,translated);
+  try{
+    let res=await fetch(url);
+    let data=await res.json();
+    let translated="";
+    data[0].forEach(i=>translated+=i[0]);
+    translatedText.value=translated;
+    saveHistory(text,translated);
+  }catch(e){
+    alert("Translation failed!");
+  }
 }
 
-// 🔊 FULL LANGUAGE SUPPORT FIX
-function speakText(){
-  let text = translatedText.value;
+// AI FIX
+function rewriteText(){
+  let text=sourceText.value.trim();
   if(!text) return;
-
-  let utter = new SpeechSynthesisUtterance(text);
-
-  let voices = speechSynthesis.getVoices();
-
-  let langMap = {
-    en:"en-US", hi:"hi-IN", te:"te-IN", ta:"ta-IN", bn:"bn-IN",
-    kn:"kn-IN", ml:"ml-IN", mr:"mr-IN", gu:"gu-IN",
-    pa:"pa-IN", ur:"ur-PK", ar:"ar-SA", zh:"zh-CN",
-    ja:"ja-JP", ko:"ko-KR", fr:"fr-FR", de:"de-DE",
-    es:"es-ES", it:"it-IT", ru:"ru-RU", pt:"pt-PT", tr:"tr-TR"
-  };
-
-  utter.lang = langMap[targetLang.value] || "en-US";
-
-  let voice = voices.find(v => v.lang === utter.lang);
-  if(voice) utter.voice = voice;
-
-  speechSynthesis.cancel();
-  speechSynthesis.speak(utter);
+  text=text.charAt(0).toUpperCase()+text.slice(1);
+  if(!text.endsWith(".")) text+=".";
+  translatedText.value=text;
+  saveHistory("AI Fix",text);
 }
 
-// ensure voices load
-speechSynthesis.onvoiceschanged = () => { speechSynthesis.getVoices(); };
-
-// rest unchanged
+// VOICE INPUT
 function startVoice(){
   const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
   recognition.lang = "en-US";
@@ -288,64 +310,79 @@ function startVoice(){
   recognition.start();
 }
 
-function copyText(){
-  navigator.clipboard.writeText(translatedText.value);
-  alert("Copied!");
+// SPEAK
+function speakText(){
+  const text = translatedText.value;
+  if(!text) return;
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = targetLang.value || 'en-US';
+  speechSynthesis.speak(utter);
 }
 
+// COPY
+function copyText(){ navigator.clipboard.writeText(translatedText.value); alert("Copied!"); }
+
+// HISTORY
 function saveHistory(src,trans){
   let u=sessionStorage.getItem("currentUser");
-  let freshUsers = JSON.parse(localStorage.getItem("users")||"{}");
-  if(!freshUsers[u]) freshUsers[u]={password:"",history:[]};
-  freshUsers[u].history.unshift({src,trans});
-  localStorage.setItem("users",JSON.stringify(freshUsers));
-  users=freshUsers;
+  if(!u || !users[u]) return;
+  if(!users[u].history) users[u].history=[];
+  users[u].history.unshift({src,trans});
+  localStorage.setItem("users",JSON.stringify(users));
   renderHistory();
 }
-
 function renderHistory(){
   let u=sessionStorage.getItem("currentUser");
-  let freshUsers = JSON.parse(localStorage.getItem("users")||"{}");
-  let list=freshUsers[u]?.history||[];
+  if(!u || !users[u]) return;
+  let list=users[u].history||[];
   history.innerHTML="";
   list.slice(0,10).forEach(h=>{
     history.innerHTML+=`<p>${h.src} → ${h.trans}</p>`;
   });
 }
 
+// FORGOT PASSWORD
 function openForgot(){ loginModal.style.display="none"; forgotModal.style.display="flex"; }
 function closeForgot(){ forgotModal.style.display="none"; loginModal.style.display="flex"; }
-
 function resetPassword(){
   let u = fpUser.value.trim();
   let p = fpNewPass.value.trim();
-  if(!u || !p) return alert("Enter details");
+  if(!u||!p) return alert("Enter details");
   if(!users[u]) return alert("User not found");
-  users[u].password = p;
+  users[u].password=p;
   localStorage.setItem("users",JSON.stringify(users));
   alert("Password updated!");
   closeForgot();
 }
 
-// downloads
-function downloadExcel(){
-  let data=[{Source:sourceText.value,Translation:translatedText.value}];
-  let ws=XLSX.utils.json_to_sheet(data);
-  let wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,"Translation");
-  XLSX.writeFile(wb,"translation.xlsx");
-}
-
+// DOWNLOAD TXT
 function downloadText(){
-  let blob=new Blob([`Source:\n${sourceText.value}\n\nTranslation:\n${translatedText.value}`],{type:"text/plain"});
-  let a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="translation.txt";
-  a.click();
+  const blob = new Blob([translatedText.value], {type:"text/plain"});
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "translation.txt";
+  link.click();
 }
 
+// DOWNLOAD EXCEL
+function downloadExcel(){
+  let csvContent = "data:text/csv;charset=utf-8," 
+    + translatedText.value.split("\n").map(e=>e.replace(/,/g,"")).join(",");
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.href = encodedUri;
+  link.download = "translation.csv";
+  link.click();
+}
+
+// SWAP LANGUAGES
+function swapLang(){
+  let temp = targetLang.value;
+  targetLang.value = temp;
+}
+
+// START
 startApp();
 </script>
-
 </body>
 </html>
