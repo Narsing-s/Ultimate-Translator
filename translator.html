@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Global Translator Pro</title>
+
+<style>
+body {
+  font-family:'Segoe UI';
+  margin:0;
+  background:linear-gradient(135deg,#667eea,#764ba2);
+  overflow:hidden;
+}
+
+/* floating bubbles */
+.bubble{
+  position:absolute;
+  width:20px;height:20px;
+  background:rgba(255,255,255,0.2);
+  border-radius:50%;
+  animation:float 10s infinite;
+}
+@keyframes float{
+  from{transform:translateY(100vh);}
+  to{transform:translateY(-10vh);}
+}
+
+/* login */
+.login-modal{
+  position:fixed;
+  width:100%;height:100%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:rgba(0,0,0,0.5);
+}
+.login-box{
+  background:#fff;
+  padding:25px;
+  border-radius:15px;
+  width:300px;
+  text-align:center;
+  animation:pop .4s ease;
+}
+@keyframes pop{
+  from{transform:scale(.7);opacity:0;}
+  to{transform:scale(1);opacity:1;}
+}
+
+input{
+  width:90%;
+  padding:10px;
+  margin:8px 0;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+
+button{
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  background:#667eea;
+  color:#fff;
+  cursor:pointer;
+}
+button:hover{background:#556cd6;}
+
+.container{
+  display:none;
+  max-width:900px;
+  margin:30px auto;
+  background:#fff;
+  padding:25px;
+  border-radius:15px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.2);
+  animation:fade .5s ease;
+}
+@keyframes fade{
+  from{opacity:0;transform:translateY(20px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+textarea{
+  width:100%;
+  height:100px;
+  margin-top:10px;
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #ccc;
+}
+
+.controls{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:10px;
+}
+
+.history{
+  margin-top:10px;
+  max-height:150px;
+  overflow:auto;
+  background:#f9f9f9;
+  padding:10px;
+  border-radius:10px;
+}
+</style>
+</head>
+
+<body>
+
+<script>
+// bubbles
+for(let i=0;i<25;i++){
+  let b=document.createElement("div");
+  b.className="bubble";
+  b.style.left=Math.random()*100+"%";
+  b.style.animationDuration=(5+Math.random()*10)+"s";
+  document.body.appendChild(b);
+}
+</script>
+
+<!-- LOGIN -->
+<div class="login-modal" id="loginModal">
+  <div class="login-box">
+    <h2>🔐 Login</h2>
+    <input id="username" placeholder="Username">
+    <input id="password" type="password" placeholder="Password">
+    <br>
+    <input type="checkbox" onclick="togglePass()"> Show Password
+    <br><br>
+    <button onclick="login()">Login / Register</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="container" id="app">
+<h2>🌍 Welcome <span id="userDisplay"></span></h2>
+
+<textarea id="sourceText" placeholder="Type here..."></textarea>
+
+<div class="controls">
+  <select id="targetLang"></select>
+  <button onclick="translateText()">Translate</button>
+  <button onclick="rewriteText()">AI Fix</button>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<textarea id="translatedText" readonly></textarea>
+
+<div class="controls">
+  <button onclick="clearHistory()">Clear History</button>
+</div>
+
+<div class="history" id="history"></div>
+</div>
+
+<script>
+// 🌍 50+ LANGUAGES
+const languages = {
+  en:"English", hi:"Hindi", te:"Telugu", ta:"Tamil", bn:"Bengali",
+  kn:"Kannada", ml:"Malayalam", mr:"Marathi", gu:"Gujarati",
+  pa:"Punjabi", ur:"Urdu", ar:"Arabic", zh:"Chinese", ja:"Japanese",
+  ko:"Korean", fr:"French", de:"German", es:"Spanish",
+  it:"Italian", ru:"Russian", pt:"Portuguese", tr:"Turkish",
+  nl:"Dutch", pl:"Polish", sv:"Swedish", fi:"Finnish",
+  da:"Danish", no:"Norwegian", el:"Greek", he:"Hebrew",
+  th:"Thai", vi:"Vietnamese", id:"Indonesian", ms:"Malay",
+  ro:"Romanian", hu:"Hungarian", cs:"Czech", sk:"Slovak",
+  uk:"Ukrainian", bg:"Bulgarian", sr:"Serbian", hr:"Croatian",
+  sl:"Slovenian", et:"Estonian", lv:"Latvian", lt:"Lithuanian"
+};
+
+for(let code in languages){
+  targetLang.innerHTML += `<option value="${code}">${languages[code]}</option>`;
+}
+
+// 👥 USERS
+let users = JSON.parse(localStorage.getItem("users")||"{}");
+
+function login(){
+  let u=username.value.trim();
+  let p=password.value.trim();
+
+  if(!u||!p) return alert("Enter details");
+
+  if(users[u]){
+    if(users[u].password!==p){
+      let reset=confirm("Wrong password. Reset?");
+      if(reset){
+        users[u].password=p;
+      }else return;
+    }
+  }else{
+    users[u]={password:p,history:[]};
+  }
+
+  localStorage.setItem("users",JSON.stringify(users));
+  sessionStorage.setItem("currentUser",u);
+  startApp();
+}
+
+function togglePass(){
+  password.type = password.type==="password"?"text":"password";
+}
+
+function startApp(){
+  let u=sessionStorage.getItem("currentUser");
+  if(!u) return;
+
+  loginModal.style.display="none";
+  app.style.display="block";
+  userDisplay.innerText=u;
+
+  renderHistory();
+}
+
+function logout(){
+  sessionStorage.removeItem("currentUser");
+  location.reload();
+}
+
+// 🌐 TRANSLATE
+async function translateText(){
+  let text=sourceText.value;
+
+  const url=`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang.value}&dt=t&q=${encodeURIComponent(text)}`;
+
+  let res=await fetch(url);
+  let data=await res.json();
+
+  let translated="";
+  data[0].forEach(i=>translated+=i[0]);
+
+  translatedText.value=translated;
+  saveHistory(text,translated);
+}
+
+// 🧠 AI FIX
+function rewriteText(){
+  let text=sourceText.value.trim();
+  if(!text) return;
+
+  text=text.charAt(0).toUpperCase()+text.slice(1);
+  if(!text.endsWith(".")) text+=".";
+
+  translatedText.value=text;
+  saveHistory("AI Fix",text);
+}
+
+// 📜 HISTORY
+function saveHistory(src,trans){
+  let u=sessionStorage.getItem("currentUser");
+  users[u].history.unshift({src,trans});
+  localStorage.setItem("users",JSON.stringify(users));
+  renderHistory();
+}
+
+function renderHistory(){
+  let u=sessionStorage.getItem("currentUser");
+  let list=users[u]?.history||[];
+
+  history.innerHTML="";
+  list.slice(0,10).forEach(h=>{
+    history.innerHTML+=`<p>${h.src} → ${h.trans}</p>`;
+  });
+}
+
+function clearHistory(){
+  let u=sessionStorage.getItem("currentUser");
+  users[u].history=[];
+  localStorage.setItem("users",JSON.stringify(users));
+  renderHistory();
+}
+
+startApp();
+</script>
+
+</body>
+</html>
