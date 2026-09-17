@@ -1,84 +1,98 @@
 # 🌍 Ultimate Translator Pro
 
-A modern, responsive browser translator built with plain HTML, CSS and JavaScript. It combines multilingual text translation, language detection, voice input, text-to-speech, local history and export tools in a single workspace.
+A modern responsive browser translator with automatic translation, voice input, text-to-speech, searchable history, favorites, sharing, document import, image/OCR workspace, interpreter mode and PWA installation support.
 
-## ✨ What is included
+## ✨ Features
 
 ### Translation
-- Auto-detect source language
-- 30+ selectable languages
-- Real source ↔ target language swapping
-- Google Translate public endpoint integration
-- Clear, copy and paste actions
-- Character counter and translation status
+- Automatic translation while typing with a short debounce
+- Manual Translate now action
+- Source auto-detection
+- 40+ selectable languages
+- Source/target swap
+- Copy, paste and clear
+- Character counters and live status
+- Text improvement helper
 
-### Voice & accessibility
-- Browser Speech Recognition voice input
-- Text-to-speech for translated output
-- Keyboard-friendly controls
-- Responsive desktop and mobile layout
+### Voice & conversation
+- Browser speech recognition input
+- Text-to-speech output
+- Conversation/interpreter workspace for two speakers
+- Speaker A ↔ Speaker B translation flow
 
-### Productivity
-- Recent translation history (up to 30 items per browser user)
-- Click a history item to restore the translation
-- Clear-all history
-- TXT, CSV and JSON export
-- Local text-improvement helper for capitalization, spacing and punctuation
+### Documents & images
+- TXT, CSV and JSON document import directly in the browser
+- PDF/DOCX workspace with browser capability messaging
+- Image/OCR workspace for image uploads
+- Extracted text can be sent directly to the translator
 
-### Modern UI
-- Glass-style responsive interface
-- Light / dark mode with saved preference
-- Two-pane translation workspace
-- Compact toolbar and contextual actions
-- Mobile layout that stacks translation panes cleanly
-- No framework or external JavaScript dependency
+### History & sharing
+- Up to 100 recent translations per browser user
+- Search history
+- Favorite/unfavorite translations
+- Delete individual entries
+- Clear all history
+- Restore a translation by clicking it
+- Export/import history as JSON
+- Native share when supported, clipboard fallback otherwise
 
-## 🔐 Authentication note
+### App experience
+- Modern responsive glass-style UI
+- Light/dark mode
+- Mobile-friendly stacked panes
+- Installable PWA shell
+- Service worker caching for the app shell
+- Keyboard-friendly controls and accessible labels
+- No build step required
 
-This project intentionally has **demo-only browser authentication**. User credentials and history are stored in `localStorage`; the current session is stored in `sessionStorage`. This is suitable for a learning/demo application, but it is **not secure production authentication**.
+## 🔐 Authentication
 
-For production, replace this with a server-side authentication system, password hashing, secure sessions, rate limiting and appropriate data protection.
+Authentication remains intentionally demo-only and browser-local. Credentials, counters and translation history are stored in `localStorage`, while the active session is stored in `sessionStorage`. This is not production authentication.
 
-## 🌐 Translation service note
+For production, use a server-side identity system with password hashing, secure sessions/tokens, rate limiting and appropriate data protection.
 
-The application currently calls Google's public translation endpoint directly from the browser. Availability, CORS behavior and rate limits are controlled by that service. A production deployment should place a supported translation provider behind a backend/API layer.
+## 🌐 Translation service
+
+The current frontend uses the public Google translation endpoint directly from the browser. Availability, CORS behavior and rate limits are controlled by that service. For a production product, put a supported translation provider behind a backend/API layer and keep credentials server-side.
+
+## 📱 PWA
+
+The repository includes `manifest.webmanifest` and `sw.js`. On supported browsers the app can be installed from the browser's install UI/menu. The service worker caches the local application shell; translation still requires network access.
 
 ## 🚀 Run locally
 
-No build step is required:
+No build step is required. Serve the repository with a static HTTP server rather than opening the HTML with `file://` when testing PWA/service-worker features.
 
-1. Clone the repository.
-2. Open `index.html` in a modern browser, or serve the folder with any static web server.
-3. Create a demo user and start translating.
+Example:
 
-Chrome or Edge is recommended for the best Speech Recognition support.
+```bash
+python -m http.server 8080
+```
 
-## 📁 Project structure
+Then open `http://localhost:8080`.
+
+Chrome or Edge is recommended for the best speech-recognition experience.
+
+## 📁 Structure
 
 ```text
 Ultimate-Translator/
 ├── index.html
+├── manifest.webmanifest
+├── sw.js
 ├── README.md
 ├── LICENSE
 └── .github/
     └── workflows/
 ```
 
-The current frontend is intentionally dependency-free so it can be deployed as a static site.
+## ⚠️ Browser capability notes
 
-## 🧭 Recommended next production upgrades
-
-- Backend authentication with secure password hashing
-- Managed translation API with server-side credentials
-- PWA/offline shell and install support
-- Translation favorites and searchable history
-- Document translation for TXT/PDF/DOCX
-- Image OCR translation
-- Conversation/interpreter mode
-- Pronunciation controls and selectable voices
-- Import/export history
-- Optional cloud sync
-- Automated browser tests and accessibility checks
+- Speech recognition depends on browser and microphone permissions.
+- Native sharing depends on browser/device support.
+- TXT/CSV/JSON import is fully browser-based.
+- PDF/DOCX extraction and OCR are capability-dependent and are intentionally surfaced as browser tools rather than pretending every browser can extract every file format.
+- The public translation endpoint is not a guaranteed production API.
 
 ## 📄 License
 
