@@ -1,0 +1,10 @@
+{
+  "name": "Ultimate Translator Pro",
+  "short_name": "Translator",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#5b5cf0",
+  "description": "Automatic multilingual translation with voice, documents, OCR and conversation tools.",
+  "icons": []
+}
