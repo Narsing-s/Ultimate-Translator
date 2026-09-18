@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   const key = process.env.DEEPL_API_KEY;
   if (!key) return res.status(503).json({error:'Formatted document translation requires DEEPL_API_KEY on the server.'});
   try {
-    const form = await req.formData();
+    const form = await new Response(req).formData();
     const file = form.get('file');
     const target = form.get('target');
     const source = form.get('source') || '';
@@ -19,7 +19,8 @@ export default async function handler(req, res) {
     if (source && source !== 'auto') upload.append('source_lang', String(source).toUpperCase());
     if (formality && formality !== 'default') upload.append('formality', formality);
 
-    const up = await fetch('https://api-free.deepl.com/v2/document', {
+    const base = process.env.DEEPL_API_BASE || 'https://api-free.deepl.com';
+    const up = await fetch(base+'/v2/document', {
       method:'POST',
       headers:{Authorization:'DeepL-Auth-Key '+key},
       body:upload
@@ -31,7 +32,7 @@ export default async function handler(req, res) {
     let statusData;
     for(let i=0;i<90;i++){
       await new Promise(r=>setTimeout(r,1000));
-      const st=await fetch('https://api-free.deepl.com/v2/document/'+encodeURIComponent(id),{
+      const st=await fetch(base+'/v2/document/'+encodeURIComponent(id),{
         method:'POST',
         headers:{Authorization:'DeepL-Auth-Key '+key,'Content-Type':'application/json'},
         body:JSON.stringify({document_key:documentKey})
@@ -43,7 +44,7 @@ export default async function handler(req, res) {
     }
     if(statusData?.status!=='done') return res.status(504).json({error:'Document translation timed out.'});
 
-    const result=await fetch('https://api-free.deepl.com/v2/document/'+encodeURIComponent(id)+'/result',{
+    const result=await fetch(base+'/v2/document/'+encodeURIComponent(id)+'/result',{
       method:'POST',
       headers:{Authorization:'DeepL-Auth-Key '+key,'Content-Type':'application/json'},
       body:JSON.stringify({document_key:documentKey})
