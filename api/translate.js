@@ -24,6 +24,9 @@ export default async function handler(req,res) {
       const signal=AbortSignal.timeout(ms);
       return fetch(url,{...options,signal});
     };
+    const requestOrigin=req.headers?.origin;
+    const allowedOrigin=process.env.ALLOWED_ORIGIN;
+    if(allowedOrigin && requestOrigin && requestOrigin!==allowedOrigin) return res.status(403).json({error:'Origin not allowed'});
     const translateChunk = async (q) => {
       if (deeplKey) {
         const body = new URLSearchParams({text:q,target_lang:target.toUpperCase()});
