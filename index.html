@@ -126,13 +126,18 @@ async function readDocumentFile(f){
       const source=src.value==='auto'?'auto':src.value,target=dst.value,formality=$('docTone')?.value||'default';
       const downloads=[];
       try{
+        let formattedUnavailable=false;
         for(const file of documentFiles){
+          if(formattedUnavailable)break;
           const fd=new FormData();fd.append('file',file,file.name);fd.append('source',source);fd.append('target',target);fd.append('formality',formality);
           const r=await fetch('/api/document-translate',{method:'POST',body:fd});
           if(r.ok){
             const blob=await r.blob();
             downloads.push({name:'translated-'+file.name,blob});
-          }else if(r.status!==404&&r.status!==503){
+          }else if(r.status===404||r.status===503){
+            formattedUnavailable=true;
+            downloads.length=0;
+          }else{
             let msg='Formatted translation failed';try{msg=(await r.json()).error||msg}catch{};throw Error(msg);
           }
         }
