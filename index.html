@@ -162,10 +162,12 @@ const glossaryKey=()=> 'ut_glossary_'+current;
 function getGlossary(){try{return JSON.parse(localStorage.getItem(glossaryKey())||'[]')}catch{return[]}}
 function saveGlossary(a){localStorage.setItem(glossaryKey(),JSON.stringify(a))}
 function applyGlossary(text){
-  for(const x of getGlossary()){if(!x.source||!x.target)continue;const escaped=x.source.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\\\function applyGlossary(text){
-  for(const x of getGlossary()){if(x.source&&x.target)text=text.split(x.source).join(x.target)}
-  return text;
-}');try{text=text.replace(new RegExp('\\\\b'+escaped+'\\\\b','gi'),x.target)}catch{text=text.split(x.source).join(x.target)}}
+  for(const x of getGlossary()){
+    if(!x.source||!x.target)continue;
+    const escaped=x.source.replace(/[.*+?^$\\{}()|[\\]\\\\]/g,'\\\\$&');
+    try{text=text.replace(new RegExp('\\\\b'+escaped+'\\\\b','gi'),x.target)}
+    catch{text=text.split(x.source).join(x.target)}
+  }
   return text;
 }
 $('glossary').onclick=()=>{
