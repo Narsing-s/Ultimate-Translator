@@ -42,6 +42,7 @@ A modern browser-first translation workspace focused on fast automatic translati
 - Restore a translation by clicking it
 - Export/import history as JSON
 - Optional **Do not save new translations to history** mode
+- Account/local-data controls: clear local history/settings or delete the demo account from the device
 - Native sharing with clipboard fallback
 
 ### App experience
@@ -107,6 +108,8 @@ Ultimate-Translator/
 - PDF/DOCX extraction depends on loading the browser libraries and on the file being readable.
 - Scanned or password-protected PDFs may contain no extractable text.
 - PWA installation behavior is browser-dependent.
+- The demo account is browser-local; deleting it removes its local profile, history, glossary and privacy setting from that browser.
+- Document translation currently downloads extracted translated text as TXT rather than recreating original PDF/DOCX/PPTX/XLSX layout.
 - The public translation fallback is not a production SLA/API.
 
 ## 📄 License
