@@ -28,6 +28,7 @@ A modern browser-first translation workspace focused on fast automatic translati
 - TXT, CSV and JSON import
 - PDF text extraction with PDF.js when available
 - DOCX text extraction with Mammoth when available
+- PPTX and XLSX file selection for formatted provider translation
 - Multiple document selection
 - Combined document preview
 - Long-document translation in chunks
