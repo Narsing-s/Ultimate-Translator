@@ -10,7 +10,7 @@
 <div id="auth" class="auth"><div class="card"><div class="brand"><div class="logo">文</div>Ultimate Translator Pro</div><h1>Translate without friction.</h1><p style="color:var(--muted)">Automatic translation, voice, documents and conversation tools.</p><div class="field"><label>Username</label><input id="user" autocomplete="username"></div><div class="field"><label>Password</label><input id="pass" type="password" autocomplete="current-password"></div><button id="login" class="primary wide">Continue</button><p style="font-size:11px;color:var(--muted)">Demo authentication is local to this browser.</p></div></div>
 <div id="app" class="hidden"><div class="wrap"><header class="top"><div class="brand"><div class="logo">文</div>Ultimate Translator</div><div class="actions"><button class="icon" id="install">Install</button><button class="icon" id="theme">☾</button><div class="profile"><div class="avatar" id="avatar">U</div><span id="name">User</span></div><button class="icon" id="account">Account</button><button class="icon" id="logout">↪</button></div></header>
 <section class="hero"><h1>Your words, any language.</h1><p>Type normally — translation starts automatically after a short pause.</p></section>
-<main class="translator"><div class="bar"><select id="src"><option value="auto">Detect language</option></select><button class="swap" id="swap" aria-label="Swap languages">⇄</button><select id="dst"></select></div><div class="panes"><section class="pane"><textarea id="input" maxlength="5000" aria-label="Text to translate" placeholder="Start typing or paste text here…"></textarea><div class="foot"><span id="count">0 / 5000</span><div class="tools"><button class="btn" id="speak">🎙 Speak</button><button class="btn" id="paste">Paste</button><button class="btn" id="clear">Clear</button></div></div></section><section class="pane"><textarea id="output" readonly aria-label="Translated text" placeholder="Translation appears here automatically…"></textarea><div class="foot"><span id="outCount">0 chars</span><div class="tools"><button class="btn" id="listen">🔊 Listen</button><button class="btn" id="copy">Copy</button><button class="btn" id="share">Share</button></div></div></section></div><div class="toolbar"><button class="btn primary" id="translate">Translate now</button><button class="btn" id="improve">✨ Improve text</button><button class="btn" id="docs">📄 Documents</button><button class="btn" id="conversation">🎧 Conversation</button><button class="btn" id="glossary">📖 Glossary</button><button class="btn" id="privacy">🔒 Privacy</button><button class="btn" id="shortcuts">⌨ Shortcuts</button><button class="btn" id="exportHistory">Export history</button><button class="btn" id="importHistory">Import history</button><input id="historyFile" type="file" accept="application/json" hidden><input id="documentPicker" type="file" multiple accept=".txt,.csv,.json,.pdf,.docx,text/plain,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0"><div class="status"><span class="dot" id="dot"></span><span id="status">Ready</span></div></div></main>
+<main class="translator"><div class="bar"><select id="src"><option value="auto">Detect language</option></select><button class="swap" id="swap" aria-label="Swap languages">⇄</button><select id="dst"></select></div><div class="panes"><section class="pane"><textarea id="input" maxlength="5000" aria-label="Text to translate" placeholder="Start typing or paste text here…"></textarea><div class="foot"><span id="count">0 / 5000</span><div class="tools"><button class="btn" id="speak">🎙 Speak</button><button class="btn" id="paste">Paste</button><button class="btn" id="clear">Clear</button></div></div></section><section class="pane"><textarea id="output" readonly aria-label="Translated text" placeholder="Translation appears here automatically…"></textarea><div class="foot"><span id="outCount">0 chars</span><div class="tools"><button class="btn" id="listen">🔊 Listen</button><button class="btn" id="copy">Copy</button><button class="btn" id="share">Share</button></div></div></section></div><div class="toolbar"><button class="btn primary" id="translate">Translate now</button><button class="btn" id="improve">✨ Improve text</button><button class="btn" id="docs">📄 Documents</button><button class="btn" id="conversation">🎧 Conversation</button><button class="btn" id="glossary">📖 Glossary</button><button class="btn" id="privacy">🔒 Privacy</button><button class="btn" id="shortcuts">⌨ Shortcuts</button><select id="tone" class="btn" aria-label="Translation tone"><option value="default">Tone: Auto</option><option value="formal">Formal</option><option value="informal">Informal</option><button class="btn" id="exportHistory">Export history</button><button class="btn" id="importHistory">Import history</button><input id="historyFile" type="file" accept="application/json" hidden><input id="documentPicker" type="file" multiple accept=".txt,.csv,.json,.pdf,.docx,text/plain,text/csv,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0"><div class="status"><span class="dot" id="dot"></span><span id="status">Ready</span></div></div></main>
 <section class="grid"><div class="card"><h3>Translation history</h3><input id="historySearch" class="search" placeholder="Search translations…"><div style="display:flex;gap:7px;margin:9px 0"><button class="btn" id="clearHistory">Clear all</button><button class="btn" id="favoritesOnly">★ Favorites</button></div><div id="history" class="history"></div></div><div class="card"><h3>Workspace</h3><div class="feature-grid"><div class="feature"><b id="tc">0</b><small>Translations</small></div><div class="feature"><b id="cc">0</b><small>Characters</small></div><div class="feature"><b id="hc">0</b><small>Saved items</small></div><div class="feature"><b id="fc">0</b><small>Favorites</small></div></div><p style="color:var(--muted);font-size:12px;line-height:1.6">Documents support TXT, CSV, JSON, PDF and DOCX extraction in-browser when the required browser libraries are available.</p></div></section></div></div>
 <div id="modal" class="modal hidden"><div class="card"><div class="modal-head"><h2 id="modalTitle">Advanced tool</h2><button class="icon" id="close">×</button></div><div id="modalBody"></div></div></div><div id="toast" class="toast"></div>
 <script>
@@ -26,7 +26,7 @@ function status(t,s='ok'){$('status').textContent=t;$('dot').className='dot '+(s
 function counts(){$('count').textContent=`${input.value.length} / 5000`;$('outCount').textContent=`${output.value.length} chars`}
 function schedule(){counts();clearTimeout(timer);if(!input.value.trim()){output.value='';status('Ready');return}timer=setTimeout(()=>translate(false),450)}input.addEventListener('input',schedule);src.onchange=schedule;dst.onchange=schedule;
 async function providerTranslate(text,sl,tl,signal){
-  const body={text,source:sl,target:tl};
+  const body={text,source:sl,target:tl,formality:$('tone')?.value||'default'};
   try{
     const r=await fetch('/api/translate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal});
     if(r.ok){
@@ -86,7 +86,7 @@ function openDocumentPicker(){
     <div id="docQueue" class="chips"></div>
     <div id="docStatus" style="color:var(--muted);font-size:12px;margin:10px 0">No files selected.</div>
     <textarea id="docPreview" style="width:100%;min-height:220px;margin-top:10px" placeholder="Document text will appear here…"></textarea>
-    <div class="tools" style="margin-top:10px"><button type="button" class="btn primary" id="translateDoc">Translate document</button><button type="button" class="btn" id="downloadDoc">Download translation</button></div>
+    <div class="tools" style="margin-top:10px"><select id="docTone" class="btn"><option value="default">Tone: Auto</option><option value="formal">Formal</option><option value="informal">Informal</option></select><button type="button" class="btn primary" id="translateDoc">Translate document(s)</button><button type="button" class="btn" id="downloadDoc">Download text</button></div><div id="docDownloads" style="margin-top:10px"></div>
   `);
 }
 async function extractDocument(f){
@@ -120,14 +120,34 @@ async function readDocumentFile(f){
     $('docPreview').value=documentTexts.join('\n\n==============================\n\n');
     $('docStatus').textContent='Loaded '+valid.length+' file(s) · '+$('docPreview').value.length+' characters';
     $('translateDoc').onclick=async()=>{
-      const text=$('docPreview').value.trim();if(!text)return toast('No document text');
-      status('Translating document…','busy');
+      if(!documentFiles.length)return toast('Choose document(s) first');
+      status('Translating document(s)…','busy');
+      const source=src.value==='auto'?'auto':src.value,target=dst.value,formality=$('docTone')?.value||'default';
+      const downloads=[];
       try{
-        const translated=await providerTranslate(text,src.value==='auto'?'auto':src.value,dst.value,new AbortController().signal);
-        $('docPreview').value=translated;
-        $('docStatus').textContent='Translation complete · '+translated.length+' characters';
-        $('downloadDoc').onclick=()=>download('translated-document.txt',translated,'text/plain');
-        toast('Document translated');
+        for(const file of documentFiles){
+          const fd=new FormData();fd.append('file',file,file.name);fd.append('source',source);fd.append('target',target);fd.append('formality',formality);
+          const r=await fetch('/api/document-translate',{method:'POST',body:fd});
+          if(r.ok){
+            const blob=await r.blob();
+            downloads.push({name:'translated-'+file.name,blob});
+          }else if(r.status!==404&&r.status!==503){
+            let msg='Formatted translation failed';try{msg=(await r.json()).error||msg}catch{};throw Error(msg);
+          }
+        }
+        if(downloads.length){
+          $('docStatus').textContent='Formatted translation complete · '+downloads.length+' file(s)';
+          $('docDownloads').innerHTML=downloads.map((x,i)=>'<button class="btn" data-dl="'+i+'">⬇ '+escapeHtml(x.name)+'</button>').join(' ');
+          document.querySelectorAll('[data-dl]').forEach(b=>b.onclick=()=>{const x=downloads[+b.dataset.dl],a=document.createElement('a');a.href=URL.createObjectURL(x.blob);a.download=x.name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)});
+          toast('Formatted document(s) translated');
+        } else {
+          const text=$('docPreview').value.trim();if(!text)throw Error('No document text');
+          const translated=await providerTranslate(text,source,target,new AbortController().signal);
+          $('docPreview').value=translated;
+          $('docStatus').textContent='Text translation complete · '+translated.length+' characters';
+          $('downloadDoc').onclick=()=>download('translated-document.txt',translated,'text/plain');
+          toast('Document translated as text');
+        }
         status('Ready');
       }catch(e){$('docStatus').textContent='Translation failed — '+e.message;status('Document translation failed','err')}
     };
