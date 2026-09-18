@@ -33,7 +33,7 @@ A modern browser-first translation workspace focused on fast automatic translati
 - Combined document preview
 - Long-document translation in chunks
 - Download translated text as TXT
-- Optional formatted per-file document translation when the DeepL server integration is configured
+- Optional formatted per-file document translation when the DeepL server integration is configured (server upload limit: 4 MB on Vercel; larger supported text documents can use the browser/text fallback)
 - Scanned/protected PDFs may require an external OCR workflow; this project intentionally does not include an image/OCR workspace
 
 ### History & privacy
@@ -112,7 +112,7 @@ Ultimate-Translator/
 - Scanned or password-protected PDFs may contain no extractable text.
 - PWA installation behavior is browser-dependent.
 - The demo account is browser-local; deleting it removes its local profile, history, glossary and privacy setting from that browser.
-- Without `DEEPL_API_KEY`, document translation falls back to extracted text and TXT output. With the configured DeepL document endpoint, supported files can be returned in their translated document format.
+- Without `DEEPL_API_KEY`, document translation falls back to extracted text and TXT output. Formatted document uploads to the Vercel function are limited to 4 MB because of the platform request-payload limit. With the configured DeepL document endpoint, supported files can be returned in their translated document format.
 - The public translation fallback is not a production SLA/API.
 
 ## 📄 License
