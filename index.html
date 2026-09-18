@@ -170,10 +170,9 @@ function saveGlossary(a){localStorage.setItem(glossaryKey(),JSON.stringify(a))}
 function applyGlossary(text){
   for(const x of getGlossary()){
     if(!x.source||!x.target)continue;
-    const escaped=x.source.replace(/[.*+?^${}()|[\]\\]/g,'\\const escaped=x.source.replace(/[.*+?^$\{}()|[\]\\]/g,'\\$&');
-    try{text=text.replace(new RegExp('\\b'+escaped+'\\b','gi'),x.target)}');
-    try{text=text.replace(new RegExp(escaped,'gi'),x.target)}
-    catch{text=text.split(x.source).join(x.target)}
+    const escaped=String(x.source).replace(/[.*+?^$\{}()|[\]\\]/g,'\\$&');
+    try{text=text.replace(new RegExp(escaped,'gi'),String(x.target))}
+    catch{text=text.split(String(x.source)).join(String(x.target))}
   }
   return text;
 }
