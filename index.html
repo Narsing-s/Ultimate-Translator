@@ -64,7 +64,7 @@ async function translate(manual=true){
    if(!privacy.noHistory){
      users[current].count=(users[current].count||0)+1;
      users[current].chars=(users[current].chars||0)+text.length;
-     users[current].history=[{id:Date.now(),from:sl,to:tl,input:text,output:finalTranslation,fav:false,time:new Date().toISOString()},...(users[current].history||[])].slice(0,100);
+     const history=users[current].history||[];const duplicate=history[0]&&history[0].from===sl&&history[0].to===tl&&history[0].input===text&&history[0].output===finalTranslation;if(!duplicate)users[current].history=[{id:Date.now(),from:sl,to:tl,input:text,output:finalTranslation,fav:false,time:new Date().toISOString()},...history].slice(0,100);
      save();renderHistory();stats();
    }
    counts();status(manual?'Translated':'Translated automatically');
@@ -134,7 +134,7 @@ async function readDocumentFile(f){
           if(r.ok){
             const blob=await r.blob();
             downloads.push({name:'translated-'+file.name,blob});
-          }else if(r.status===404||r.status===503){
+          }else if(r.status===404||r.status===413||r.status===503){
             formattedUnavailable=true;
             downloads.length=0;
           }else{
@@ -170,8 +170,9 @@ function saveGlossary(a){localStorage.setItem(glossaryKey(),JSON.stringify(a))}
 function applyGlossary(text){
   for(const x of getGlossary()){
     if(!x.source||!x.target)continue;
-    const escaped=x.source.replace(/[.*+?^$\{}()|[\]\\]/g,'\\$&');
-    try{text=text.replace(new RegExp('\\b'+escaped+'\\b','gi'),x.target)}
+    const escaped=x.source.replace(/[.*+?^${}()|[\]\\]/g,'\\const escaped=x.source.replace(/[.*+?^$\{}()|[\]\\]/g,'\\$&');
+    try{text=text.replace(new RegExp('\\b'+escaped+'\\b','gi'),x.target)}');
+    try{text=text.replace(new RegExp(escaped,'gi'),x.target)}
     catch{text=text.split(x.source).join(x.target)}
   }
   return text;
