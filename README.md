@@ -119,3 +119,15 @@ MIT License. See LICENSE.
 ## 👨‍💻 Author
 
 Narsinga Beesetti
+
+### Optional production document translation
+
+Set these server environment variables when deploying the API:
+
+- `DEEPL_API_KEY` — enables formatted DOCX/PPTX/PDF/XLSX document translation through the DeepL Document API.
+- `DEEPL_API_BASE` — optional; defaults to `https://api-free.deepl.com`. Use the appropriate DeepL API base for your plan.
+- `GOOGLE_TRANSLATE_API_KEY` — optional text-translation provider.
+
+With a DeepL key, the Documents workspace attempts **per-file formatted translation** and keeps the original document file type. Without it, the app safely falls back to browser extraction + text translation. DeepL and Google Cloud both document formatted document translation support for major office/PDF formats. citeturn0search0turn0search1turn0search7
+
+The toolbar also supports Formal/Informal/Auto tone where the configured provider supports formality.
