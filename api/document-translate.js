@@ -1,11 +1,14 @@
 export const config = { api: { bodyParser: false } };
+export const maxDuration = 60;
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({error:'Method not allowed'});
   const key = process.env.DEEPL_API_KEY;
   if (!key) return res.status(503).json({error:'Formatted document translation requires DEEPL_API_KEY on the server.'});
   try {
-    const form = await new Response(req).formData();
+    const contentType = req.headers?.['content-type'] || req.headers?.get?.('content-type');
+    if (!contentType || !contentType.toLowerCase().startsWith('multipart/form-data')) return res.status(400).json({error:'Expected multipart/form-data upload.'});
+    const form = await new Response(req, {headers:{'content-type':contentType}}).formData();
     const file = form.get('file');
     const target = form.get('target');
     const source = form.get('source') || '';
@@ -30,7 +33,7 @@ export default async function handler(req, res) {
 
     const id=upData.document_id, documentKey=upData.document_key;
     let statusData;
-    for(let i=0;i<90;i++){
+    for(let i=0;i<45;i++){
       await new Promise(r=>setTimeout(r,1000));
       const st=await fetch(base+'/v2/document/'+encodeURIComponent(id),{
         method:'POST',
