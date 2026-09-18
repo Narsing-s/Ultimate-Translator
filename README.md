@@ -10,12 +10,13 @@ A modern browser-first translation workspace focused on fast automatic translati
 - Source auto-detection
 - 40+ languages
 - Source/target swap
-- Copy, paste, clear and share
+- Copy, paste, clear, download and share
 - Character counters and live status
 - Text improvement helper
 - Long-text chunking for safer translation requests
 - Personal glossary for preferred terminology
 - Keyboard shortcuts
+- Formal, informal or automatic tone when supported by the configured provider
 
 ### Voice & conversation
 - Browser speech recognition input
@@ -31,6 +32,7 @@ A modern browser-first translation workspace focused on fast automatic translati
 - Combined document preview
 - Long-document translation in chunks
 - Download translated text as TXT
+- Optional formatted per-file document translation when the DeepL server integration is configured
 - Scanned/protected PDFs may require an external OCR workflow; this project intentionally does not include an image/OCR workspace
 
 ### History & privacy
@@ -109,7 +111,7 @@ Ultimate-Translator/
 - Scanned or password-protected PDFs may contain no extractable text.
 - PWA installation behavior is browser-dependent.
 - The demo account is browser-local; deleting it removes its local profile, history, glossary and privacy setting from that browser.
-- Document translation currently downloads extracted translated text as TXT rather than recreating original PDF/DOCX/PPTX/XLSX layout.
+- Without `DEEPL_API_KEY`, document translation falls back to extracted text and TXT output. With the configured DeepL document endpoint, supported files can be returned in their translated document format.
 - The public translation fallback is not a production SLA/API.
 
 ## 📄 License
